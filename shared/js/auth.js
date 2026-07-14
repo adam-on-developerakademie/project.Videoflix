@@ -63,6 +63,10 @@ async function forgotEmailSubmit(event) {
  */
 async function forgotFlowSubmit(event) {
     event.preventDefault();
+    if (!validateEmail(document.getElementById("forgot_email"))) {
+        showToastMessage(true, ["Please enter a valid email address"]);
+        return;
+    }
     setError(false, "forgot_email_group");
     const data = getFormData(event.target);
     if (isActivationMode()) await resendActivationEmail(data);
@@ -93,7 +97,7 @@ async function forgetEmail(data) {
 async function resendActivationEmail(data) {
     const response = await postData(RESEND_ACTIVATION_URL, data);
     if (!response.ok) return handleForgotFlowError(response);
-    const msg = ["Activation email sent! Please check your inbox."];
+    const msg = ["Activation link resent! Please check your email."];
     showToastAndRedirect(false, msg, "../auth/login.html", TOAST_DURATION);
 }
 
@@ -123,7 +127,7 @@ function isActivationMode() {
  */
 function initForgotPasswordPage() {
     if (!isActivationMode()) return;
-    setForgotPageText('forgot_title', 'Resend activation link?');
+    setForgotPageText('forgot_title', 'Resend activation');
     setForgotPageText('forgot_submit_label', 'Resend activation email');
     setForgotPageText('forgot_description', 'We will send you a new account activation email.');
 }
