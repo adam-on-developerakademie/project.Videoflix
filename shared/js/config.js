@@ -27,6 +27,13 @@ const REGISTER_URL = 'register/';
 const FORGET_PASSWORD_URL = 'password_reset/';
 
 /**
+ * Relative path for re-sending account activation emails.
+ * Used when users request a new activation link.
+ * @constant {string}
+ */
+const RESEND_ACTIVATION_URL = 'resend_activation/';
+
+/**
  * Relative path for refreshing JWT tokens.
  * @constant {string}
  */

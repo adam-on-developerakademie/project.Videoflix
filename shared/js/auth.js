@@ -56,6 +56,20 @@ async function forgotEmailSubmit(event) {
 }
 
 /**
+ * Handles submission for forgot-password and activation-resend flows.
+ * Routes the request based on the current page mode.
+ *
+ * @param {Event} event - The form submission event.
+ */
+async function forgotFlowSubmit(event) {
+    event.preventDefault();
+    setError(false, "forgot_email_group");
+    const data = getFormData(event.target);
+    if (isActivationMode()) await resendActivationEmail(data);
+    else await forgetEmail(data);
+}
+
+/**
  * Sends a password reset request with the given data.
  *
  * @param {Object} data - The email or credentials for password reset.
@@ -69,6 +83,60 @@ async function forgetEmail(data) {
     } else {
         showToastAndRedirect(false, ["Password reset email sent! Please check your inbox."], "../auth/login.html", TOAST_DURATION);
     }
+}
+
+/**
+ * Sends an activation email resend request using the provided email.
+ *
+ * @param {Object} data - The email payload for activation resend.
+ */
+async function resendActivationEmail(data) {
+    const response = await postData(RESEND_ACTIVATION_URL, data);
+    if (!response.ok) return handleForgotFlowError(response);
+    const msg = ["Activation email sent! Please check your inbox."];
+    showToastAndRedirect(false, msg, "../auth/login.html", TOAST_DURATION);
+}
+
+/**
+ * Handles generic forgot-flow error display.
+ *
+ * @param {{data?: Object}} response - Response wrapper from the API helper.
+ */
+function handleForgotFlowError(response) {
+    setError(true, "forgot_email_group");
+    const errorArr = extractErrorMessages(response.data || {});
+    showToastMessage(true, errorArr);
+}
+
+/**
+ * Determines whether the forgot page runs in activation mode.
+ *
+ * @returns {boolean} True if mode=activation is present in the URL.
+ */
+function isActivationMode() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'activation';
+}
+
+/**
+ * Initializes title, description, and button label for forgot-page modes.
+ */
+function initForgotPasswordPage() {
+    if (!isActivationMode()) return;
+    setForgotPageText('forgot_title', 'Resend activation link?');
+    setForgotPageText('forgot_submit_label', 'Resend activation email');
+    setForgotPageText('forgot_description', 'We will send you a new account activation email.');
+}
+
+/**
+ * Updates text content for a forgot-page element if it exists.
+ *
+ * @param {string} id - The target element ID.
+ * @param {string} text - The text content to apply.
+ */
+function setForgotPageText(id, text) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = text;
 }
 
 /**
