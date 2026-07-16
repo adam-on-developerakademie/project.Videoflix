@@ -16,6 +16,9 @@ video
 /.idea
 .DS_Store
 
+# Private publish folder
+/nur_für_Online/
+
 # Backup files #
 *.bak
 
